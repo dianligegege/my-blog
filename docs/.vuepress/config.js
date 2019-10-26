@@ -1,7 +1,10 @@
 module.exports = {
     title: 'Hello VuePress',
-    description: 'Just playing around',
-    base: '/my-blog/',
+    description: 'dianligegege\'s blog',
+    base: '/',
+    head: [
+      ['link', { rel: 'shortcut icon', href:'/image/favicon.ico' }],
+    ],
     // 默认样式配置
     themeConfig: {
       // 导航栏
@@ -23,14 +26,14 @@ module.exports = {
       sidebar: [
         ['/', 'home页'],
         ['/demo', 'demo页'],
-        ['/pagea', 'pagea页']
+        ['/page', 'page页']
       ]
   },
   // webpack配置
   configureWebpack: {
     resolve: {
       alias: {
-        '@fuck': 'image'
+        '@': './.vuepress/public'
       }
     }
   },

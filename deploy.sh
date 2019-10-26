@@ -4,7 +4,7 @@
 set -e
 
 # 构建
-npm run docs:build
+yarn build
 
 # 进入生成的构建文件夹
 cd docs/.vuepress/dist
@@ -15,6 +15,8 @@ cd docs/.vuepress/dist
 git init
 git add -A
 git commit -m 'deploy'
+
+git push -f git@github.com:dianligegege/dianligegege.github.io.git master
 
 # 如果你想要部署到 https://<USERNAME>.github.io
 # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git master
