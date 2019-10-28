@@ -3,17 +3,19 @@ module.exports = {
 	description: 'dianligegege\'s blog',
 	base: '/',
 	head: [
+		['link', {rel: 'stylesheet', href: '/styles/home.css'}],
 		['link', { rel: 'shortcut icon', href: '/image/favicon.ico' }],
 	],
 	// 默认样式配置
 	themeConfig: {
+		lastUpdated: '上次更新时间',
 		// 导航栏
 		nav: [
 			{ text: 'Home', link: '/' },
 			{
 				text: '文档',
 				items: [
-					{ text: '旧文章', link: '/old/' },
+					{ text: '旧文章', link: '/old/destructuringAssignment' },
 					{ text: '新文章', link: '/new/' }
 				]
 			},
@@ -23,12 +25,14 @@ module.exports = {
 			'/old/': [
 				{
 					title: '一些旧文章',   // 必要的
-					path: '/old/',    // 可选的, 应该是一个绝对路径
+					// path: '/old/',    // 可选的, 应该是一个绝对路径
 					collapsable: false, // 可选的, 默认值是 true,
 					sidebarDepth: 1,    // 可选的, 默认值是 1
 					children: [
-						['document', '旧文章一'],
-						['document1', '旧文章二']
+						['destructuringAssignment', '解构赋值'],
+						['objectExpend', '对象的扩展'],
+						['class', 'Class类'],
+						['websocketBase', 'WebSocket基础'],
 					]
 				},
 			],

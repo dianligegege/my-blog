@@ -1,0 +1,8 @@
+#app .navbar .home-link span {
+    background-image: url(../image/logo.png);
+    background-size: 110px 36px;
+    background-position: left;
+    background-repeat: no-repeat;
+    color: transparent;
+    min-width: 110px;
+}
