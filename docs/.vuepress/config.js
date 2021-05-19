@@ -42,6 +42,7 @@ module.exports = {
 					title: '一些新文章',
 					children: [
 						['import-export', 'import与export'],
+						['Object', '对象的创建'],
 					],
 				},
 			],
