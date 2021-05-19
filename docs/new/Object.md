@@ -1,0 +1,146 @@
+# 对象的创建
+
+**首先需要知道的是使用原型的继承模式进行创建对象的意义，虽然可以使用 Object 构造函数或对象字面量可以方便地创建对象，但是这些方式在创建具有同样接口的多个对象时需要重复编写很多代码。然后需要知道的是 ECMAScript6 开始支持类和继承，但是ES6 的类更像是封装了 ES5.1 构造函数加原型继承的语法糖而已**
+
+## 1 工厂模式
+
+封装一个函数，接收对象所需的参数，return 一个对象
+
+```js
+function creatPerson(name, age, job) {
+    let o = new Object();
+    o.name = name;
+    o.age = age;
+    o.job = job;
+    o.getName = function () {
+        console.log(this.name);
+    };
+    return o;
+}
+
+const obj1 = creatPerson('hh', 112, 'worker');
+console.log(obj1);
+```
+
+`obj1` 打印结果如下
+
+![avatar](../img/new/obj.png)
+
+## 2 构造函数模式
+
+使用构造函数模式，上边的例子可以这样写
+
+```js
+function Person (name, age, job) {
+    this.name = name;
+    this.age = age;
+    this.job = job;
+    this.getName = function () {
+        console.log(this.name);
+    };
+}
+
+const person1 = new Person('dianli', 22, 'worker');
+person1.getName(); // 'dianli'
+```
+
+使用 new 操作符调用构造函数会执行如下操作。
+
+1. 在内存中创建一个新对象
+
+2. **新对象的 `[[Prototype]]` 特性会被赋值为构造函数的 `prototype`**<br>
+    *后续会详细讨论对象的原型继承*
+
+3. **构造函数内部的 `this` 被赋值为这个新对象，即 `this` 指向新对象**<br>
+    *此时只是 `this` 指向了新对象，还未通过 `this` 来对新对象进行修改*
+
+4. **执行构造函数内部的代码（给新对象添加属性）**<br>
+    **3、4 步说明*并不是说新对象继承了构造函数的属性，而是这些属性在进行 new 操作时被直接赋予了新的对象***
+
+5. 如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象。
+
+第5步示例代码如下
+
+```js
+function Person() {
+    this.name = 'dianli1';
+    return {
+        name: 'dianli2',
+    };
+}
+
+const person1 = new Person();
+console.log(person1.name); // dianli2
+```
+
+### 2.1 构造函数也是函数
+
+构造函数除了可以通过被 `new` 出来，还能直接调用，因为他就是不同的函数。在被调用是其中的 `this` 指向调用时的上下文。例如：
+
+```js
+function Person() {
+    this.name = 'dianli';
+}
+Person(); // 这里直接调用，this 指向 全局作用域 window
+console.log(window.name); // 'dianli'
+
+const o = new Object();
+Person.call(o); // Person 的 this 指向了对象 o
+console.log(o.name); // 'dianli'
+```
+
+## 2.2 构造函数的问题
+
+```js
+function Person () {
+    this.getName = function () {
+        console.log('one function');
+    };
+}
+
+const person1 = new Person();
+const person2 = new Person()
+person1.getName(); // 'dianli'
+person2.getName(); // 'dinali'
+```
+
+构造函数内部定义的方法会在每个实例上创建一次，换言之，每个实例上都有一个方法，而且这个方法的所要实现的东西是一样的。在上述代码中，person1 和 person2 内都有一个 getName 的方法。
+
+为了解决这个相同逻辑的函数重复定义的问题，可以把这个函数定义在构造函数外部，在构造函数内部定义个方法来指向外部的函数。
+
+```js
+function Person () {
+    this.gerName = getName();
+}
+
+getName = function () {
+    console.log('one function');
+};
+
+const person1 = new Person();
+const person2 = new Person()
+person1.getName(); // 'dianli'
+person2.getName(); // 'dinali'
+```
+
+**这样似乎解决了构造函数的问题，但是却带来了新的问题，那就是全局作用域被污染了**
+也许你会想到不把函数定义在全局作用域内，而是定义在一个对象内
+
+```js
+const obj = {
+    getName: function() {
+        console.lgo('one function');
+    }
+}
+```
+
+嗯，看起来似乎完美解决了这个问题。但是即使是把方法定义在一个新对象内，也会随着方法和构造函数的增多而显得冗余杂乱，而且还需要我们手动再去创建一个对象。
+
+## 2 原型模式
+
+通过上一章可以了解到，使用构造函数主要是让实例继承了属性和方法，然后为了解决重复创建的问题还需要在外部作用域内定义一个方法。那么如果有没有一种方式**既可以实现属性和方法的继承，又可以不需要外部作用域中定义方法呢？**
+
+每个函数都会创建一个 `prototype` 属性，这个属性是一个对象，这个对象包含了可以被实例共享的属性和方法。实际上，这个 `prototype` 对象就实例的**原型**。
+
+![avatar](../img/new/prototype1.png)
+*未完待续*
