@@ -6,11 +6,19 @@ set -e
 # 构建
 yarn build
 
+rm -rf dianligegege.github.io
+
+mkdir dianligegege.github.io
+
 # 进入生成的构建文件夹
-cd docs/.vuepress/dist
+# cd docs/.vuepress/dist
+
+cp docs/.vuepress/dist/* dianligegege.github.io
 
 # 如果你是要部署到自定义域名
 # echo 'www.example.com' > CNAME
+
+cd dianligegege.github.io
 
 git add .
 git commit -m $0

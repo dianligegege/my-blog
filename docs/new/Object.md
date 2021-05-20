@@ -104,7 +104,11 @@ person1.getName(); // 'dianli'
 person2.getName(); // 'dinali'
 ```
 
-构造函数内部定义的方法会在每个实例上创建一次，换言之，每个实例上都有一个方法，而且这个方法的所要实现的东西是一样的。在上述代码中，person1 和 person2 内都有一个 getName 的方法。
+构造函数内部定义的方法会在每个实例上创建一次，换言之，每个实例上都有一个方法，而且这个方法的所要实现的东西是一样的。在上述代码中，person1 和 person2 内都有一个 getName 的方法。而且这两个不同实例上的函数虽然同名却不相等。
+
+```js
+cosole.log(person1.getName == person2.getName); // false
+```
 
 为了解决这个相同逻辑的函数重复定义的问题，可以把这个函数定义在构造函数外部，在构造函数内部定义个方法来指向外部的函数。
 
@@ -143,4 +147,64 @@ const obj = {
 每个函数都会创建一个 `prototype` 属性，这个属性是一个对象，这个对象包含了可以被实例共享的属性和方法。实际上，这个 `prototype` 对象就实例的**原型**。
 
 ![avatar](../img/new/prototype1.png)
+
+```js
+function Person() {
+    Person.prototype.name = 'dianli';
+    Person.prototype.sayName = function() {
+        consoole.log(this.name);
+    };
+
+    let person1 = new Person();
+    person1.sayName(); // dianli
+
+    let person2 = new Person();
+    console.log(person1.sayName == person2.sayName); // true
+}
+```
+
+**注意这里和构造函数的不同，不同实例的 `sayName` 是相等的，**使用这种原型模式定义的属性和方法是由所有实例共享的。
+
+### 2.1 理解原型
+
+只要创建一个函数，这个函数就会被创建一个 `prototype` 属性，这个属性指向原型对象。然后这个原型对象会有一个 `constructor` 属性，再指会到这个函数。
+
+```js
+function Person() {};
+
+console.log(Person.prototype);
+// {
+//     constructor: f Person(),
+//     __proto__: Object // 这个Object是说这个属性是个对象，而不是说指向 Object
+// }
+```
+
+打印函数的原型发现除了 `contructor` 属性外，还有一个 `__proto__` 的属性，这个属性指向 **Object 的原型对象**,所以这个函数会继承 Object 上的属性和方法，当然后续会详细说明对象的继承，这里简单说就是**实例的 `__proto__` 指向构造函数的 `prototype` 属性，而实例会通过 `__proto__` 来继承构造函数的 `prototype` 上的属性和方法。**
+
+![avatar](../img/new/prototype2.png)
+
+*脚本中没有访问这个[[Prototype]]特性的标准方式，但Firefox、Safari和Chrome会在每个对象上暴露__proto__属性，通过这个属性可以访问对象的原型。*
+
+### 2.2 原型的层级
+
+构造函数的原型中可以定义属性，实例也可以定义属性，但是实例中的属性会把原型中的同名属性覆盖掉，只是因为查找属性时是顺着原型链从下往上查找，一旦找到属性就不会再向上寻找了。除非把实例上的属性使用 `delete` 操作符进行删除。
+`hasOwnProperty` 方法可以查看当前属性是否为实例属性
+
+```js
+function Person() {
+    Person.prototype.name = "dianli";
+}
+
+const person1 = new Person();
+person1.name = 'dianligegege';
+console.log(person1.name); // dianligegege
+console.log(person1.hasOwnProperty()); // true
+
+const person2 = new Person();
+console.log(person2.name); // dianli 来自原型
+
+delete person1.name; // 删除实例同名属性
+console.log(person1.name); // dianli
+```
+
 *未完待续*
