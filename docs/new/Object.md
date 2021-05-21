@@ -198,7 +198,7 @@ function Person() {
 const person1 = new Person();
 person1.name = 'dianligegege';
 console.log(person1.name); // dianligegege
-console.log(person1.hasOwnProperty()); // true
+console.log(person1.hasOwnProperty('name')); // true
 
 const person2 = new Person();
 console.log(person2.name); // dianli 来自原型
@@ -207,4 +207,129 @@ delete person1.name; // 删除实例同名属性
 console.log(person1.name); // dianli
 ```
 
-*未完待续*
+## 2.3 其他原型语法
+
+在上边的写法中，每次修改 prototype 的属性就需要写一遍 `Person.prototype`，除了这种写法，还可以这样：
+
+```js
+function Person() {};
+
+Person.prototype = {
+    name: 'dianli',
+};
+ 
+```
+
+这样写相当于重构了 Person 的原型对象，所以原型中默认带有的 contructor 属性就没有了。如果手动给添加上 contructor 属性呢
+
+```js
+function Person() {};
+Person.prototype = {
+    name: 'dianli',
+    contructor: Person,
+}
+```
+
+这样虽然获得了 contructor 属性，不过这样会使得 contructor 的 `[[Enumerable]]` 为true,这样contructor 属性就变得可以枚举了。
+
+我们可以使用 Object.defineProperty() 方法类定义 constructor 属性。
+
+```js
+Object.defineProperty(Person.prototype, 'contructor', {
+    enumerable：false,
+    value: Person,
+})
+```
+
+## 2.4 原型的动态性
+
+从原型上搜索值是动态的，所以修改原型会在实例上反映出来
+
+```js
+let friend = new Person();
+Person.prototype.goAway = function() {
+    console.log('bye');
+}
+
+friend.goAway(); // bye
+```
+
+上面的方法是**在创建实例之后**修改原型的属性，那如果**在创建实例之后**直接重新写构造函数的原型呢？
+
+```js
+function Person() {};
+
+let friend = new Person();
+
+Person.prototype = {
+    goAway () {
+        console.log('bye');
+    }
+}
+
+friend.goAway(); // 报错
+```
+
+可以看到，这时实例调用就无法再使用原型上的方法和属性了，这是因为实例指向的还是之前的原型对象，而之前的对象不存在这个方法。（所以Person.prototype = {} 这样写是在内存中新创建了一个对象？）
+
+```js
+function Person() {};
+
+Person.prototype = {
+    goAway () {
+        console.log('hi');
+    }
+}
+
+let friend = new Person();
+
+Person.prototype = {
+    goAway () {
+        console.log('bye');
+    }
+}
+
+let friend2 = new Person();
+
+friend.goAway(); // hi
+
+friend.goAway(); // bye
+```
+
+上面这样写更加印证了我们的猜想，重写原型之前构造的实例调用的还是之间旧的原型的方法，而在重写原型之后创建的实例调用的就是新的原型上的方法。
+
+## 2.5 原型的问题
+
+1. 弱化了向构造函数传递参数，想要传递参数的话构造函数的写法就必须是在内部定义单个属性的方法。
+
+    ```js
+    function Person(name) {
+        Person.prototype.name = name;
+    }
+
+    const one = new Person('dianli');
+    console.log(one.name); // 'dianli'
+    ```
+
+2. 最重要的是原型的所有属性是在实例间共享的
+
+    还记得我们弃用构造函数而选择原型的原因吗？没错就是方法在所有实例共享这个优点。现在这个优点反而变为了缺点，包含原始值得属性也还好，可以在实例上通过添加同名属性来进行覆盖。真正的问题是对于包含引用值得属性。
+
+    ```js
+    function Person() {};
+
+    Person.prototype = {
+        name: 'dianli',
+        friends: ['lilei'],
+    }
+
+    let person1 = new Person();
+    let person2 = new Person();
+
+    person1.friends.push('hanmeimei');
+    console.log(person1.friends); // ['lilei', 'hanmeimei']
+    console.log(person2.friends); // ['lilei', 'hanmeimei']
+    consoel.log(person1.friends === person2.friends); // true
+    ```
+
+正因为存在以上的问题，所以原型在实际开发中并不会单独使用，具体怎么使用，在下篇文章 `继承` 中会详细讲到。
